@@ -3,6 +3,8 @@
 #include "graphics.h"
 #include <iostream>
 #include <algorithm>
+#include <SDL_ttf.h>
+#include <fstream>
 
 Game::Game() {
     window = nullptr;
@@ -21,12 +23,15 @@ Game::Game() {
 
     jumpSound = NULL;
     fallSound = NULL;
+    font = nullptr;
 
     score = 0;
     bestScore = 0;
     cameraThreshold = 300;
 
     isOnMenu = true;
+    isMuted = false;
+    isGameOver = false;
 }
 
 Game::~Game() {
@@ -38,6 +43,9 @@ Game::~Game() {
     if (backgroundTexture) SDL_DestroyTexture(backgroundTexture);
     if (jumpSound) Mix_FreeChunk(jumpSound);
     if (fallSound) Mix_FreeChunk(fallSound);
+    if (font) TTF_CloseFont(font);
+
+    TTF_Quit();
 
     delete player;
     delete platformManager;
@@ -46,44 +54,46 @@ Game::~Game() {
 }
 
 bool Game::init() {
-    // Initialize SDL
     window = initSDL(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
     renderer = createRenderer(window);
 
-    if (!window || !renderer) {
-        return false;
-    }
+    if (!window || !renderer) return false;
 
-    // Initialize SDL_image
     int imgFlags = IMG_INIT_PNG;
     if (!(IMG_Init(imgFlags) & imgFlags)) {
         std::cerr << "SDL_image could not initialize! SDL_image Error: " << IMG_GetError() << std::endl;
         return false;
     }
 
-    // Initialize SDL_mixer
     if (!initAudio()) {
         std::cerr << "Failed to initialize audio!" << std::endl;
         return false;
     }
 
-    // Load textures
-    loadTextures();
+    if (TTF_Init() == -1) {
+        std::cerr << "SDL_ttf could not initialize! TTF Error: " << TTF_GetError() << std::endl;
+        return false;
+    }
+    font = TTF_OpenFont("./font/font.ttf", 30);
+    if (!font) {
+        std::cerr << "Failed to load font! TTF Error: " << TTF_GetError() << std::endl;
+        return false;
+    }
 
+    loadTextures();
     loadSounds();
 
-    // Create player
     player = new Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 80);
     player->setTexture(playerLeftTexture);
-    player->setJumpSound(jumpSound); // Set the jump sound for the player
+    player->setJumpSound(jumpSound);
     player->setFallSound(fallSound);
 
-    // Create platform manager
     platformManager = new PlatformManager(SCREEN_WIDTH, SCREEN_HEIGHT);
     platformManager->setTextures(platformTexture, movingPlatformTexture, breakablePlatformTexture);
-    platformManager->initialize(15);
+    platformManager->initialize(10);
 
     isRunning = true;
+    loadBestScore();
     return true;
 }
 
@@ -94,7 +104,7 @@ void Game::loadTextures() {
     playerRightTexture = loadTexture("./images/playerright.png", renderer);
     platformTexture = loadTexture("./images/platform.png", renderer);
     movingPlatformTexture = loadTexture("./images/movingplatform.png", renderer);
-    breakablePlatformTexture = loadTexture("./images/breakplatform.png", renderer);
+    breakablePlatformTexture = loadTexture("./images/brown_platform_breaking_.png", renderer);
 }
 
 void Game::loadSounds() {
@@ -103,12 +113,8 @@ void Game::loadSounds() {
         std::cerr << "Failed to load jump sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
     }
 
-    fallSound = Mix_LoadWAV(".sound/fallSound.mp3");
-    if (!jumpSound) {
-        std::cerr << "Failed to load fall sound! SDL_mixer Error: " << Mix_GetError() << std::endl;
-    }
-}
 
+}
 
 void Game::handleEvents() {
     SDL_Event e;
@@ -120,22 +126,26 @@ void Game::handleEvents() {
             if (e.key.keysym.sym == SDLK_ESCAPE) {
                 isRunning = false;
             }
-
+            if (e.key.keysym.sym == SDLK_m) {
+                isMuted = !isMuted;
+                int volume = isMuted ? 0 : MIX_MAX_VOLUME;
+                Mix_Volume(-1, volume);
+                Mix_VolumeChunk(jumpSound, volume);
+            }
             if (isOnMenu) {
-                isOnMenu = false; // Thoát menu khi nhấn phím bất kỳ
+                isOnMenu = false;
                 return;
             }
         } else if (e.type == SDL_MOUSEBUTTONDOWN) {
             if (isOnMenu) {
-                isOnMenu = false; // Thoát menu khi click chuột
+                isOnMenu = false;
                 return;
             }
         }
     }
 
-    if (isOnMenu) return; // Không xử lý game nếu đang ở menu
+    if (isOnMenu) return;
 
-    // Handle keyboard state
     const Uint8* keystates = SDL_GetKeyboardState(NULL);
 
     if (!player->getIsJumping()) {
@@ -153,49 +163,33 @@ void Game::handleEvents() {
     }
 }
 
-
 void Game::update() {
-    if(isOnMenu) return;
-    // Update player
+    if (isOnMenu) return;
+
     player->update(platformManager->getPlatforms());
-
-    // Update platforms
     platformManager->update();
-
-    // Update difficulty based on score
     platformManager->updateDifficulty(score);
 
-    // Camera scroll
     if (player->getY() < cameraThreshold) {
         int scrollAmount = cameraThreshold - player->getY();
         player->setPosition(player->getX(), cameraThreshold);
-
         platformManager->scrollPlatforms(scrollAmount);
-
-        // Update score (1 point per pixel scrolled)
         score += scrollAmount;
         bestScore = std::max(score, bestScore);
-
-        // Remove platforms that fell off the bottom
         platformManager->removeBottomPlatforms();
-
-        // Add new platforms based on current difficulty
         int platformsToAdd = platformManager->getPlatformsToGenerate();
         platformManager->addNewPlatforms(platformsToAdd);
     }
-    // Game over condition - also play falling sound at max volume when player falls off the screen
+
     if (player->getY() > SCREEN_HEIGHT - 100 && player->getY() <= SCREEN_HEIGHT && fallSound) {
-        // Play falling sound at higher volume for dramatic effect as player is about to die
         Mix_VolumeChunk(fallSound, MIX_MAX_VOLUME);
         Mix_PlayChannel(-1, fallSound, 0);
     }
 
-    // Game over condition
     if (player->getY() > SCREEN_HEIGHT) {
         std::cout << "Game Over! Score: " << score << std::endl;
         std::cout << "Best Score: " << bestScore << std::endl;
-
-        // Reset game
+        saveBestScore();
         score = 0;
         player->setPosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
         platformManager->initialize(15);
@@ -207,26 +201,27 @@ void Game::render() {
 
     if (isOnMenu) {
         SDL_RenderCopy(renderer, menuTexture, NULL, NULL);
+        Uint32 time = SDL_GetTicks();
+        if(time / 400 % 2 == 0) {
+            displayText("Press any key", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 20);
+            displayText("to play", SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 + 50);
+        }
         SDL_RenderPresent(renderer);
         return;
     }
 
-    // Render background
     if (backgroundTexture) {
         SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
     }
 
-    // Render platforms
     platformManager->render(renderer);
-
-    // Render player
     player->render(renderer);
 
-    // TODO: Render score
+    std::string soundStatus = isMuted ? "Sound: On" : "Sound: Off";
+    displayText(soundStatus, 10, 10);
 
     SDL_RenderPresent(renderer);
 }
-
 
 void Game::run() {
     while (isRunning) {
@@ -235,7 +230,46 @@ void Game::run() {
         render();
 
         std::cout << score << "\n";
-        SDL_Delay(0); // Giới hạn 60 FPS
+        SDL_Delay(0);
     }
 }
 
+void Game::displayText(const std::string& text, int x, int y, SDL_Color color) {
+    if (!font) return;
+    SDL_Surface* textSurface = TTF_RenderText_Blended(font, text.c_str(), color);
+    if (!textSurface) {
+        std::cerr << "Unable to render text surface! SDL_ttf Error: " << TTF_GetError() << std::endl;
+        return;
+    }
+    SDL_Texture* textTexture = SDL_CreateTextureFromSurface(renderer, textSurface);
+    if (!textTexture) {
+        std::cerr << "Unable to create texture from rendered text! SDL Error: " << SDL_GetError() << std::endl;
+        SDL_FreeSurface(textSurface);
+        return;
+    }
+    SDL_Rect renderQuad = { x, y, textSurface->w, textSurface->h };
+    SDL_RenderCopy(renderer, textTexture, NULL, &renderQuad);
+
+    SDL_FreeSurface(textSurface);
+    SDL_DestroyTexture(textTexture);
+}
+
+void Game::saveBestScore() {
+    std::ofstream outFile("highscore.txt");
+    if (outFile.is_open()) {
+        outFile << bestScore;
+        outFile.close();
+    } else {
+        std::cerr << "Failed to save high score!" << std::endl;
+    }
+}
+
+void Game::loadBestScore() {
+    std::ifstream inFile("highscore.txt");
+    if (inFile.is_open()) {
+        inFile >> bestScore;
+        inFile.close();
+    } else {
+        bestScore = 0;
+    }
+}

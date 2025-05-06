@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_mixer.h>
+#include <SDL_ttf.h>
 #include "player.h"
 #include "platform.h"
 
@@ -17,6 +18,7 @@ private:
     PlatformManager* platformManager;
     Mix_Chunk* jumpSound;
     Mix_Chunk* fallSound;
+    TTF_Font* font;
 
     SDL_Texture* menuTexture;
     SDL_Texture* backgroundTexture;
@@ -34,8 +36,13 @@ private:
     void update();
     void render();
     void loadTextures();
-    void loadSounds(); // Add this line
+    void loadSounds();
     bool isOnMenu;
+    void displayText(const std::string& text, int x, int y, SDL_Color color = {0, 0, 0, 0});
+    bool isMuted;
+    void saveBestScore();
+    void loadBestScore();
+    bool isGameOver;
 
 public:
     Game();
