@@ -12,7 +12,7 @@
 
 1745590867 d:\game\blt\def.h
 
-1746515938 d:\game\blt\graphics.h
+1746548407 d:\game\blt\graphics.h
 	<iostream>
 	"def.h"
 	<SDL.h>
@@ -22,7 +22,7 @@
 1744939192 d:\game\blt\doodler.h
 	<vector>
 
-1746545602 d:\game\blt\game.h
+1746546314 d:\game\blt\game.h
 	<SDL.h>
 	<SDL_image.h>
 	<SDL_mixer.h>
@@ -30,18 +30,18 @@
 	"player.h"
 	"platform.h"
 
-1746545701 d:\game\blt\player.h
+1746548407 d:\game\blt\player.h
 	<SDL.h>
 	<SDL_mixer.h>
 	<vector>
 	"platform.h"
 
-1746499466 d:\game\blt\platform.h
+1746548407 d:\game\blt\platform.h
 	<SDL.h>
 	<vector>
 	<random>
 
-1746545602 source:d:\game\blt\game.cpp
+1746547953 source:d:\game\blt\game.cpp
 	"game.h"
 	"def.h"
 	"graphics.h"
@@ -50,12 +50,12 @@
 	<SDL_ttf.h>
 	<fstream>
 
-1746545701 source:d:\game\blt\player.cpp
+1746548705 source:d:\game\blt\player.cpp
 	"player.h"
 	"def.h"
 	<algorithm>
 
-1746526282 source:d:\game\blt\platform.cpp
+1746548610 source:d:\game\blt\platform.cpp
 	"platform.h"
 	"def.h"
 	<algorithm>

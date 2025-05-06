@@ -15,11 +15,11 @@ private:
     SDL_Rect rect;
     PlatformType type;
     float speed;
-    int direction; // 1 for right, -1 for left
+    int direction;
     int screenWidth;
     SDL_Texture* texture;
-    bool broken;   // For breakable platforms
-    int breakTimer; // Time after collision before platform breaks
+    bool broken;
+    int breakTimer;
 
 public:
     Platform(int x, int y, int width, int height, PlatformType platformType = PlatformType::NORMAL);
@@ -27,7 +27,7 @@ public:
 
     void render(SDL_Renderer* renderer);
     void update();
-    void startBreaking(); // Start the breaking process for breakable platforms
+    void startBreaking();
 
     SDL_Rect getRect() const { return rect; }
     PlatformType getType() const { return type; }
@@ -53,9 +53,9 @@ private:
     SDL_Texture* platformTexture;
     SDL_Texture* movingPlatformTexture;
     SDL_Texture* breakablePlatformTexture;
-    int difficultyLevel;     // Tracks difficulty level based on score
-    int platformsPerLevel;   // Number of platforms to generate per level
-    int basePlatformCount;   // Base number of platforms at start
+    int difficultyLevel;
+    int platformsPerLevel;
+    int basePlatformCount;
 
 public:
     PlatformManager(int screenWidth, int screenHeight);
@@ -72,7 +72,7 @@ public:
     void setTextures(SDL_Texture* normalTexture, SDL_Texture* movingTexture = nullptr, SDL_Texture* breakableTexture = nullptr);
 
     const std::vector<Platform>& getPlatforms() const { return platforms; }
-    std::vector<Platform>& getPlatforms() { return platforms; } // Non-const version for modification
+    std::vector<Platform>& getPlatforms() { return platforms; }
     bool isOverlapping(int x, int y) const;
 
     void updateDifficulty(int score);

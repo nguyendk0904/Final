@@ -42,6 +42,7 @@ private:
     void saveBestScore();
     void loadBestScore();
     bool isGameOver;
+    void handleGameOverScreen();
 
 public:
     Game();

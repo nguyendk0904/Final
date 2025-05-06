@@ -16,12 +16,10 @@ Player::Player(int startX, int startY, int size) {
     facingLeft = false;
     jumpSound = nullptr;
     isFallingSoundPlaying = false;
-    previousVelocityY = 0.0f; // Initialize previous velocity
+    previousVelocityY = 0.0f;
 }
 
-Player::~Player() {
-    // Texture is managed externally
-}
+Player::~Player() {}
 
 void Player::render(SDL_Renderer* renderer) {
     if (texture) {
@@ -34,22 +32,17 @@ void Player::update(std::vector<Platform>& platforms) {
 
     if (isJumping) {
         velocityY += gravity;
-        // Apply movement in small steps to improve collision detection
         float remainingMovement = velocityY;
         int steps = std::max(1, int(std::abs(remainingMovement)));
         float dy = remainingMovement / steps;
 
         for (int i = 0; i < steps; ++i) {
             y += dy;
-
-            // Check collision with all platforms
             for (auto& platform : platforms) {
                 if (checkPlatformCollision(platform)) {
                     break;
                 }
             }
-
-            // Break if we're no longer jumping
             if (!isJumping) break;
         }
     }
@@ -74,7 +67,6 @@ void Player::moveRight() {
     x += stepX;
     facingLeft = false;
 
-    // Wrap around screen edges
     if (x > SCREEN_WIDTH) {
         x = -width;
     }
@@ -84,20 +76,16 @@ void Player::moveLeft() {
     x -= stepX;
     facingLeft = true;
 
-    // Wrap around screen edges
     if (x < -width) {
         x = SCREEN_WIDTH;
     }
 }
 
 bool Player::checkPlatformCollision(Platform& platform) {
-    // Only check foot collision when falling
     if (velocityY < 0) return false;
 
-    // Skip broken platforms
     if (platform.isBroken()) return false;
 
-    // Create foot rectangle
     const int footHeight = 5;
     SDL_Rect footRect = {
         x,
@@ -106,16 +94,13 @@ bool Player::checkPlatformCollision(Platform& platform) {
         footHeight
     };
 
-    // Get platform rectangle
     SDL_Rect platformRect = platform.getRect();
 
-    // Check intersection
     if (SDL_HasIntersection(&footRect, &platformRect)) {
         y = platformRect.y;
         velocityY = 0;
         isJumping = false;
 
-        // If this is a breakable platform, trigger break
         if (platform.isBreakable()) {
             platform.startBreaking();
         }
@@ -131,8 +116,6 @@ void Player::setTexture(SDL_Texture* newTexture) {
 }
 
 void Player::setTextures(SDL_Texture* leftTexture, SDL_Texture* rightTexture) {
-    // This method would be used if you want to switch textures based on direction
-    // For simplicity, we're only using a single texture in this implementation
     texture = facingLeft ? leftTexture : rightTexture;
 }
 

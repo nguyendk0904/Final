@@ -119,7 +119,8 @@ void Game::handleEvents() {
     while (SDL_PollEvent(&e)) {
         if (e.type == SDL_QUIT) {
             isRunning = false;
-        } else if (e.type == SDL_KEYDOWN) {
+        }
+        else if (e.type == SDL_KEYDOWN) {
             if (e.key.keysym.sym == SDLK_ESCAPE) {
                 isRunning = false;
             }
@@ -161,7 +162,7 @@ void Game::handleEvents() {
 }
 
 void Game::update() {
-    if (isOnMenu) return;
+    if (isOnMenu || isGameOver) return;
 
     player->update(platformManager->getPlatforms());
     platformManager->update();
@@ -179,12 +180,8 @@ void Game::update() {
     }
 
     if (player->getY() > SCREEN_HEIGHT) {
-        std::cout << "Game Over! Score: " << score << std::endl;
-        std::cout << "Best Score: " << bestScore << std::endl;
         saveBestScore();
-        score = 0;
-        player->setPosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-        platformManager->initialize(15);
+        handleGameOverScreen();
     }
 }
 
@@ -208,11 +205,26 @@ void Game::render() {
 
     platformManager->render(renderer);
     player->render(renderer);
+    displayText("Score: " + std::to_string(score), 300, 10);
 
     std::string soundStatus = isMuted ? "Sound: Off" : "Sound: On";
     displayText(soundStatus, 10, 10);
 
     SDL_RenderPresent(renderer);
+
+    if (isGameOver) {
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderClear(renderer);
+
+    displayText("Game Over!", SCREEN_WIDTH / 2 - 80, SCREEN_HEIGHT / 2 - 40);
+    displayText("Press any key to retry", SCREEN_WIDTH / 2 - 130, SCREEN_HEIGHT / 2);
+    displayText("Best Score: " + std::to_string(bestScore), SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 + 40);
+
+    SDL_RenderPresent(renderer);
+    SDL_Delay(100);
+    return;
+}
+
 }
 
 void Game::run() {
@@ -220,8 +232,6 @@ void Game::run() {
         handleEvents();
         update();
         render();
-
-        std::cout << score << "\n";
         SDL_Delay(0);
     }
 }
@@ -265,3 +275,37 @@ void Game::loadBestScore() {
         bestScore = 0;
     }
 }
+
+void Game::handleGameOverScreen() {
+    SDL_Event e;
+    bool waiting = true;
+
+    while (waiting) {
+        SDL_RenderCopy(renderer, backgroundTexture, NULL, NULL);
+
+        displayText("Game Over!", SCREEN_WIDTH / 2 - 60, SCREEN_HEIGHT / 2 - 80);
+        displayText("Press R to retry", SCREEN_WIDTH / 2 - 90, SCREEN_HEIGHT / 2 - 40);
+        displayText("Best Score: " + std::to_string(bestScore), SCREEN_WIDTH / 2 - 90, SCREEN_HEIGHT / 2 );
+
+        SDL_RenderPresent(renderer);
+
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                isRunning = false;
+                waiting = false;
+            }
+            else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_r) {
+                waiting = false;
+            }
+        }
+
+        SDL_Delay(0);
+    }
+
+    // Reset trạng thái game
+    isGameOver = false;
+    score = 0;
+    player->setPosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+    platformManager->initialize(15);
+}
+
