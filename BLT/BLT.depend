@@ -1,0 +1,62 @@
+# depslib dependency file v1.0
+1746457199 source:d:\game\blt\main.cpp
+	<SDL.h>
+	<SDL_image.h>
+	"def.h"
+	"game.h"
+
+1744448254 d:\game\blt\window.h
+	"def.h"
+	<SDL.h>
+	<SDL_image.h>
+
+1745590867 d:\game\blt\def.h
+
+1746515938 d:\game\blt\graphics.h
+	<iostream>
+	"def.h"
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+
+1744939192 d:\game\blt\doodler.h
+	<vector>
+
+1746525255 d:\game\blt\game.h
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	"player.h"
+	"platform.h"
+
+1746518283 d:\game\blt\player.h
+	<SDL.h>
+	<SDL_mixer.h>
+	<vector>
+	"platform.h"
+
+1746499466 d:\game\blt\platform.h
+	<SDL.h>
+	<vector>
+	<random>
+
+1746526440 source:d:\game\blt\game.cpp
+	"game.h"
+	"def.h"
+	"graphics.h"
+	<iostream>
+	<algorithm>
+
+1746518505 source:d:\game\blt\player.cpp
+	"player.h"
+	"def.h"
+	<algorithm>
+
+1746526282 source:d:\game\blt\platform.cpp
+	"platform.h"
+	"def.h"
+	<algorithm>
+
+1746501187 source:d:\game\blt\def.cpp
+	"def.h"
+
