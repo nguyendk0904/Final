@@ -217,7 +217,7 @@ void Game::render() {
     platformManager->render(renderer);
     player->render(renderer);
 
-    std::string soundStatus = isMuted ? "Sound: On" : "Sound: Off";
+    std::string soundStatus = isMuted ? "Sound: Off" : "Sound: On";
     displayText(soundStatus, 10, 10);
 
     SDL_RenderPresent(renderer);
