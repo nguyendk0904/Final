@@ -22,7 +22,7 @@
 1744939192 d:\game\blt\doodler.h
 	<vector>
 
-1746544558 d:\game\blt\game.h
+1746545602 d:\game\blt\game.h
 	<SDL.h>
 	<SDL_image.h>
 	<SDL_mixer.h>
@@ -30,7 +30,7 @@
 	"player.h"
 	"platform.h"
 
-1746518283 d:\game\blt\player.h
+1746545701 d:\game\blt\player.h
 	<SDL.h>
 	<SDL_mixer.h>
 	<vector>
@@ -41,7 +41,7 @@
 	<vector>
 	<random>
 
-1746544659 source:d:\game\blt\game.cpp
+1746545602 source:d:\game\blt\game.cpp
 	"game.h"
 	"def.h"
 	"graphics.h"
@@ -50,7 +50,7 @@
 	<SDL_ttf.h>
 	<fstream>
 
-1746518505 source:d:\game\blt\player.cpp
+1746545701 source:d:\game\blt\player.cpp
 	"player.h"
 	"def.h"
 	<algorithm>

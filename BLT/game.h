@@ -17,7 +17,6 @@ private:
     Player* player;
     PlatformManager* platformManager;
     Mix_Chunk* jumpSound;
-    Mix_Chunk* fallSound;
     TTF_Font* font;
 
     SDL_Texture* menuTexture;

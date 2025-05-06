@@ -15,7 +15,6 @@ Player::Player(int startX, int startY, int size) {
     texture = nullptr;
     facingLeft = false;
     jumpSound = nullptr;
-    fallSound = nullptr;
     isFallingSoundPlaying = false;
     previousVelocityY = 0.0f; // Initialize previous velocity
 }
@@ -35,17 +34,6 @@ void Player::update(std::vector<Platform>& platforms) {
 
     if (isJumping) {
         velocityY += gravity;
-        // Play falling sound when player starts falling (velocity becomes positive)
-        if (velocityY > 2.0f && fallSound && !isFallingSoundPlaying) {
-            Mix_PlayChannel(-1, fallSound, 0);
-            isFallingSoundPlaying = true;
-        }
-
-        // Reset falling sound flag when jumping again or landing
-        if (velocityY < 0 || !isJumping) {
-            isFallingSoundPlaying = false;
-        }
-
         // Apply movement in small steps to improve collision detection
         float remainingMovement = velocityY;
         int steps = std::max(1, int(std::abs(remainingMovement)));
@@ -69,10 +57,6 @@ void Player::update(std::vector<Platform>& platforms) {
 
 void Player::setJumpSound (Mix_Chunk* sound) {
     jumpSound = sound;
-}
-
-void Player:: setFallSound (Mix_Chunk* sound) {
-    fallSound = sound;
 }
 
 void Player::jump() {

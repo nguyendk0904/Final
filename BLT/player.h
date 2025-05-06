@@ -17,7 +17,6 @@ private:
     SDL_Texture* texture;
     bool facingLeft;
     Mix_Chunk* jumpSound;
-    Mix_Chunk* fallSound;
     bool isFallingSoundPlaying; // Add this to track if the falling sound is currently playing
     float previousVelocityY; // Add this to track velocity changes
 

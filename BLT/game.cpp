@@ -22,7 +22,6 @@ Game::Game() {
     breakablePlatformTexture = nullptr;
 
     jumpSound = NULL;
-    fallSound = NULL;
     font = nullptr;
 
     score = 0;
@@ -42,7 +41,6 @@ Game::~Game() {
     if (breakablePlatformTexture) SDL_DestroyTexture(breakablePlatformTexture);
     if (backgroundTexture) SDL_DestroyTexture(backgroundTexture);
     if (jumpSound) Mix_FreeChunk(jumpSound);
-    if (fallSound) Mix_FreeChunk(fallSound);
     if (font) TTF_CloseFont(font);
 
     TTF_Quit();
@@ -86,7 +84,6 @@ bool Game::init() {
     player = new Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 80);
     player->setTexture(playerLeftTexture);
     player->setJumpSound(jumpSound);
-    player->setFallSound(fallSound);
 
     platformManager = new PlatformManager(SCREEN_WIDTH, SCREEN_HEIGHT);
     platformManager->setTextures(platformTexture, movingPlatformTexture, breakablePlatformTexture);
@@ -179,11 +176,6 @@ void Game::update() {
         platformManager->removeBottomPlatforms();
         int platformsToAdd = platformManager->getPlatformsToGenerate();
         platformManager->addNewPlatforms(platformsToAdd);
-    }
-
-    if (player->getY() > SCREEN_HEIGHT - 100 && player->getY() <= SCREEN_HEIGHT && fallSound) {
-        Mix_VolumeChunk(fallSound, MIX_MAX_VOLUME);
-        Mix_PlayChannel(-1, fallSound, 0);
     }
 
     if (player->getY() > SCREEN_HEIGHT) {
