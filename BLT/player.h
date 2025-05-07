@@ -42,7 +42,7 @@ public:
 
     void setPosition(int newX, int newY);
     void setJumpSound (Mix_Chunk* sound);
-    void setFallSound (Mix_Chunk* sound);
+
 
 };
 

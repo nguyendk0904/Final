@@ -205,7 +205,7 @@ void Game::render() {
 
     platformManager->render(renderer);
     player->render(renderer);
-    displayText("Score: " + std::to_string(score), 300, 10);
+    displayText("Score: " + std::to_string(score), 280, 10);
 
     std::string soundStatus = isMuted ? "Sound: Off" : "Sound: On";
     displayText(soundStatus, 10, 10);
